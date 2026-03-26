@@ -1,6 +1,7 @@
 import { useState } from "react";
 import authIllustration from "../assets/auth-illustration.svg";
 import logo from "../assets/learnhub-logo.png";
+import { Link } from "react-router-dom";
 
 function Login({ onNavigate }) {
   const [showPassword, setShowPassword] = useState(false);
@@ -41,12 +42,11 @@ function Login({ onNavigate }) {
                 LearnHub
               </span>
             </div>
-            <button
-              onClick={() => onNavigate("home")}
-              className="text-[#1A3A6E] text-sm font-medium hover:underline"
-            >
-              ← Back to Home
-            </button>
+            <Link to="/">
+              <button className="text-[#1A3A6E] text-sm font-medium hover:underline">
+                ← Back to Home
+              </button>
+            </Link>
           </div>
 
           <h1 className="text-[#0D1A2E] text-3xl font-bold mb-2">

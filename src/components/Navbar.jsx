@@ -1,10 +1,13 @@
 import { useState } from "react";
 import logo from "../assets/learnhub-logo.png";
+import { Link } from "react-router-dom";
 
-function Navbar({ onNavigate }) {
+function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = ["Home", "Courses", "Dashboard", "Blog", "Contact"];
+  const navLinks = ["Home", "Features", "About", "Contact"];
+
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <nav className="w-full bg-white shadow-sm sticky top-0 z-50">
@@ -33,18 +36,16 @@ function Navbar({ onNavigate }) {
 
         {/* Desktop CTA Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <button
-            onClick={() => onNavigate("login")}
-            className="text-[#1A3A6E] text-sm font-semibold px-4 py-2 rounded-lg border border-[#1A3A6E] hover:bg-[#EEF0F6] transition-colors"
-          >
-            Sign In
-          </button>
-          <button
-            onClick={() => onNavigate("signup")}
-            className="bg-[#C89030] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#b07d28] transition-colors"
-          >
-            Register
-          </button>
+          <Link to="/login">
+            <button className="text-[#1A3A6E] text-sm font-semibold px-4 py-2 rounded-lg border border-[#1A3A6E] hover:bg-[#EEF0F6] transition-colors">
+              Sign In
+            </button>
+          </Link>
+          <Link to="/signup">
+            <button className="bg-[#C89030] text-white text-sm font-semibold px-4 py-2 rounded-lg hover:bg-[#b07d28] transition-colors">
+              Register
+            </button>
+          </Link>
         </div>
 
         {/* Mobile Hamburger */}
@@ -90,18 +91,16 @@ function Navbar({ onNavigate }) {
             </a>
           ))}
           <div className="flex gap-3 pt-2">
-            <button
-              onClick={() => onNavigate("login")}
-              className="flex-1 text-[#1A3A6E] text-sm font-semibold px-4 py-2 rounded-lg border border-[#1A3A6E]"
-            >
-              Sign In
-            </button>
-            <button
-              onClick={() => onNavigate("signup")}
-              className="flex-1 bg-[#C89030] text-white text-sm font-semibold px-4 py-2 rounded-lg"
-            >
-              Register
-            </button>
+            <Link to="/login" className="flex-1" onClick={closeMenu}>
+              <button className="w-full text-[#1A3A6E] text-sm font-semibold px-4 py-2 rounded-lg border border-[#1A3A6E]">
+                Sign In
+              </button>
+            </Link>
+            <Link to="/signup" className="flex-1" onClick={closeMenu}>
+              <button className="w-full bg-[#C89030] text-white text-sm font-semibold px-4 py-2 rounded-lg">
+                Register
+              </button>
+            </Link>
           </div>
         </div>
       )}
