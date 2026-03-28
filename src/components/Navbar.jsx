@@ -5,7 +5,12 @@ import { Link } from "react-router-dom";
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = ["Home", "Features", "About", "Contact"];
+  const navLinks = [
+    { label: "Home", href: "#home" },
+    { label: "Features", href: "#features" },
+    { label: "About", href: "#about" },
+    { label: "Contact", href: "#contact" },
+  ];
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -23,12 +28,12 @@ function Navbar() {
         {/* Desktop Nav Links */}
         <ul className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
-            <li key={link}>
+            <li key={link.label}>
               <a
-                href="#"
+                href={link.href}
                 className="text-[#0D1A2E] text-sm font-medium hover:text-[#1A3A6E] transition-colors"
               >
-                {link}
+                {link.label}
               </a>
             </li>
           ))}
@@ -83,11 +88,12 @@ function Navbar() {
         <div className="md:hidden bg-white border-t border-[#EEF0F6] px-6 py-4 flex flex-col gap-4">
           {navLinks.map((link) => (
             <a
-              key={link}
-              href="#"
-              className="text-[#0D1A2E] text-sm font-medium"
+              key={link.label}
+              href={link.href}
+              onClick={closeMenu}
+              className="text-[#0D1A2E] text-sm font-medium hover:text-[#1A3A6E] transition-colors"
             >
-              {link}
+              {link.label}
             </a>
           ))}
           <div className="flex gap-3 pt-2">

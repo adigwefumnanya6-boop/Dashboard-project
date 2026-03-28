@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/learnhub-logo.png";
 
-function Dashboard({ onNavigate }) {
+function Dashboard() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeNav, setActiveNav] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const userName = localStorage.getItem("userName") || "Student";
+  const userInitials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
@@ -17,6 +26,12 @@ function Dashboard({ onNavigate }) {
       .catch(() => setLoading(false));
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userName");
+    navigate("/login");
+  };
+
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: "🏠" },
     { id: "courses", label: "Courses", icon: "📚" },
@@ -26,7 +41,9 @@ function Dashboard({ onNavigate }) {
     <div className="min-h-screen bg-[#EEF0F6] flex">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#1A3A6E] flex flex-col transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0 md:static md:flex`}
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-[#1A3A6E] flex flex-col transition-transform duration-300 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } md:translate-x-0 md:static md:flex`}
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-6 border-b border-white/10">
@@ -57,7 +74,7 @@ function Dashboard({ onNavigate }) {
         {/* Logout */}
         <div className="px-4 py-6 border-t border-white/10">
           <button
-            onClick={() => onNavigate("home")}
+            onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors w-full text-left"
           >
             <span>🚪</span>
@@ -75,6 +92,7 @@ function Dashboard({ onNavigate }) {
       )}
 
       <div className="flex-1 flex flex-col min-h-screen">
+        {/* Header */}
         <header className="bg-white px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-20">
           <button
             className="md:hidden text-[#0D1A2E]"
@@ -96,7 +114,7 @@ function Dashboard({ onNavigate }) {
           </button>
 
           {/* Search Bar */}
-          <div className="flex items-center bg-[#EEF0F6] rounded-xl px-4 py-2 w-64 hidden md:flex">
+          <div className="hidden md:flex items-center bg-[#EEF0F6] rounded-xl px-4 py-2 w-64">
             <span className="text-gray-400 mr-2">🔍</span>
             <input
               type="text"
@@ -107,12 +125,12 @@ function Dashboard({ onNavigate }) {
 
           {/* User Info */}
           <div className="flex items-center gap-3 ml-auto">
-            <div className="text-right hidden sm:block">
-              <p className="text-[#0D1A2E] text-sm font-semibold">John Doe</p>
+            <div className="hidden sm:block text-right">
+              <p className="text-[#0D1A2E] text-sm font-semibold">{userName}</p>
               <p className="text-gray-400 text-xs">Student</p>
             </div>
             <div className="w-10 h-10 rounded-full bg-[#1A3A6E] flex items-center justify-center text-white font-bold text-sm">
-              JD
+              {userInitials}
             </div>
           </div>
         </header>
@@ -128,7 +146,7 @@ function Dashboard({ onNavigate }) {
                 {new Date().toDateString()}
               </p>
               <h1 className="text-white text-2xl md:text-3xl font-bold mb-1">
-                Welcome back, John! 👋
+                Welcome back, {userName.split(" ")[0]}! 👋
               </h1>
               <p className="text-white/60 text-sm">
                 Always stay updated with your courses
@@ -168,12 +186,11 @@ function Dashboard({ onNavigate }) {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {courses.map((course) => (
-                <div
+                <article
                   key={course.id}
-                  onClick={() => onNavigate(`course-${course.id}`)}
+                  onClick={() => navigate(`/course/${course.id}`)}
                   className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 cursor-pointer group"
                 >
-                  {/* Course Image */}
                   <div className="bg-[#EEF0F6] h-40 flex items-center justify-center p-4">
                     <img
                       src={course.image}
@@ -181,12 +198,10 @@ function Dashboard({ onNavigate }) {
                       className="h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-
-                  {/* Course Info */}
                   <div className="p-4">
-                    <span className="text-[#C89030] text-xs font-semibold uppercase tracking-widest">
+                    <p className="text-[#C89030] text-xs font-semibold uppercase tracking-widest">
                       {course.category}
-                    </span>
+                    </p>
                     <h3 className="text-[#0D1A2E] text-sm font-semibold mt-1 mb-3 line-clamp-2 leading-snug">
                       {course.title}
                     </h3>
@@ -199,7 +214,7 @@ function Dashboard({ onNavigate }) {
                       </button>
                     </div>
                   </div>
-                </div>
+                </article>
               ))}
             </div>
           )}

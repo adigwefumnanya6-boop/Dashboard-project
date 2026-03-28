@@ -2,7 +2,10 @@ import heroImage from "../assets/hero-image.jpg";
 
 function Hero() {
   return (
-    <section className="bg-gradient-to-br from-white via-[#EEF0F6] to-white py-16 px-6">
+    <section
+      id="home"
+      className="bg-gradient-to-br from-white via-[#EEF0F6] to-white py-16 px-6"
+    >
       <div className="max-w-7xl mx-auto flex flex-col-reverse md:flex-row items-center gap-12">
         {/* Left: Text Content */}
         <div className="flex-1">

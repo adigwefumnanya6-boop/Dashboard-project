@@ -2,7 +2,7 @@ import aboutImage from "../assets/about-image.jpg";
 
 function About() {
   return (
-    <section className="bg-[#EEF0F6] py-16 px-6">
+    <section id="about" className="bg-[#EEF0F6] py-16 px-6">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12">
         {/* Left: Image */}
         <div className="flex-1 flex justify-center">

@@ -1,11 +1,47 @@
 import { useState } from "react";
 import authIllustration from "../assets/auth-illustration.svg";
 import logo from "../assets/learnhub-logo.png";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
-function Login({ onNavigate }) {
+function Login() {
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleLogin = async () => {
+    setError("");
+    if (!email || !password) {
+      setError("Please fill in all fields.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await fetch(
+        "https://simple-crud-backend-6o49.onrender.com/api/v1/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        },
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        setError(data.message || "Invalid email or password.");
+        return;
+      }
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user.name);
+      navigate("/dashboard");
+    } catch (err) {
+      setError("Something went wrong. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -42,10 +78,11 @@ function Login({ onNavigate }) {
                 LearnHub
               </span>
             </div>
-            <Link to="/">
-              <button className="text-[#1A3A6E] text-sm font-medium hover:underline">
-                ← Back to Home
-              </button>
+            <Link
+              to="/"
+              className="text-[#1A3A6E] text-sm font-medium hover:underline"
+            >
+              ← Back to Home
             </Link>
           </div>
 
@@ -55,6 +92,12 @@ function Login({ onNavigate }) {
           <p className="text-gray-400 text-sm mb-8">
             Enter your credentials to continue
           </p>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-5">
+              {error}
+            </div>
+          )}
 
           <div className="flex flex-col gap-5">
             {/* Email */}
@@ -66,6 +109,8 @@ function Login({ onNavigate }) {
                 <input
                   type="email"
                   placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <span className="text-gray-400 text-sm">✉️</span>
@@ -81,9 +126,12 @@ function Login({ onNavigate }) {
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-400 text-sm"
                 >
@@ -103,20 +151,21 @@ function Login({ onNavigate }) {
                 </div>
                 <span className="text-[#0D1A2E] text-sm">Remember Me</span>
               </label>
-              <button
-                onClick={() => onNavigate("forgot")}
+              <Link
+                to="/forgot-password"
                 className="text-[#C89030] text-sm font-medium hover:underline"
               >
                 Forgot Password?
-              </button>
+              </Link>
             </div>
 
-            {/* Login Button — navigates to dashboard */}
+            {/* Login Button */}
             <button
-              onClick={() => onNavigate("dashboard")}
-              className="bg-[#1A3A6E] text-white font-semibold py-3 rounded-lg hover:bg-[#C89030] transition-colors duration-300"
+              onClick={handleLogin}
+              disabled={loading}
+              className="bg-[#1A3A6E] text-white font-semibold py-3 rounded-lg hover:bg-[#C89030] transition-colors duration-300 disabled:opacity-60"
             >
-              Login →
+              {loading ? "Signing in..." : "Login →"}
             </button>
 
             {/* Divider */}
@@ -170,12 +219,12 @@ function Login({ onNavigate }) {
             {/* Sign Up Link */}
             <p className="text-center text-sm text-gray-400">
               Don't have an account?{" "}
-              <button
-                onClick={() => onNavigate("signup")}
+              <Link
+                to="/signup"
                 className="text-[#1A3A6E] font-semibold hover:underline"
               >
                 Sign Up
-              </button>
+              </Link>
             </p>
           </div>
         </div>

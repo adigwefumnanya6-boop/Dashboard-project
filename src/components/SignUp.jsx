@@ -1,10 +1,71 @@
 import { useState } from "react";
 import authIllustration from "../assets/auth-illustration.svg";
 import logo from "../assets/learnhub-logo.png";
+import { Link, useNavigate } from "react-router-dom";
 
-function SignUp({ onNavigate }) {
+function SignUp() {
+  const navigate = useNavigate();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSignUp = async () => {
+    setError("");
+
+    if (!name || !email || !password || !confirmPassword) {
+      setError("Please fill in all fields.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://simple-crud-backend-6o49.onrender.com/api/v1/auth/register",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        },
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400) {
+          setError(
+            "Password must be at least 8 characters, include a capital letter and a number.",
+          );
+        } else if (response.status === 409) {
+          setError("Email already exists.");
+        } else {
+          setError(data.message || "Registration failed.");
+        }
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("userName", data.user.name);
+      navigate("/Login");
+    } catch (err) {
+      setError("Something went wrong. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isValidPassword =
+    password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password);
 
   return (
     <div className="min-h-screen flex">
@@ -43,12 +104,12 @@ function SignUp({ onNavigate }) {
                 LearnHub
               </span>
             </div>
-            <button
-              onClick={() => onNavigate("home")}
+            <Link
+              to="/"
               className="text-[#1A3A6E] text-sm font-medium hover:underline"
             >
               ← Back to Home
-            </button>
+            </Link>
           </div>
 
           <h1 className="text-[#0D1A2E] text-3xl font-bold mb-2">
@@ -58,16 +119,24 @@ function SignUp({ onNavigate }) {
             Fill in the details below to get started
           </p>
 
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-lg mb-5">
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-5">
             {/* Full Name */}
             <div>
               <label className="text-[#0D1A2E] text-sm font-semibold mb-1.5 block">
-                Full Name <span className="text-red-500">*</span>
+                Full Name
               </label>
               <div className="flex items-center border border-[#EEF0F6] rounded-lg px-4 py-3 focus-within:border-[#1A3A6E] transition-colors bg-[#EEF0F6]/40">
                 <input
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <span className="text-gray-400 text-sm">👤</span>
@@ -77,12 +146,14 @@ function SignUp({ onNavigate }) {
             {/* Email */}
             <div>
               <label className="text-[#0D1A2E] text-sm font-semibold mb-1.5 block">
-                Email <span className="text-red-500">*</span>
+                Email
               </label>
               <div className="flex items-center border border-[#EEF0F6] rounded-lg px-4 py-3 focus-within:border-[#1A3A6E] transition-colors bg-[#EEF0F6]/40">
                 <input
                   type="email"
                   placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <span className="text-gray-400 text-sm">✉️</span>
@@ -92,35 +163,48 @@ function SignUp({ onNavigate }) {
             {/* Password */}
             <div>
               <label className="text-[#0D1A2E] text-sm font-semibold mb-1.5 block">
-                Password <span className="text-red-500">*</span>
+                Password
               </label>
               <div className="flex items-center border border-[#EEF0F6] rounded-lg px-4 py-3 focus-within:border-[#1A3A6E] transition-colors bg-[#EEF0F6]/40">
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <button
+                  type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="text-gray-400 text-sm"
                 >
                   {showPassword ? "🙈" : "👁️"}
                 </button>
               </div>
+              <p
+                className={`text-xs mt-1 ${isValidPassword ? "text-green-500" : "text-red-400"}`}
+              >
+                {isValidPassword
+                  ? "Strong password ✅"
+                  : "Must be at least 8 characters, include a capital letter and a number"}
+              </p>
             </div>
 
             {/* Confirm Password */}
             <div>
               <label className="text-[#0D1A2E] text-sm font-semibold mb-1.5 block">
-                Confirm Password <span className="text-red-500">*</span>
+                Confirm Password
               </label>
               <div className="flex items-center border border-[#EEF0F6] rounded-lg px-4 py-3 focus-within:border-[#1A3A6E] transition-colors bg-[#EEF0F6]/40">
                 <input
                   type={showConfirm ? "text" : "password"}
                   placeholder="••••••••"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
                   className="flex-1 bg-transparent text-sm text-[#0D1A2E] outline-none placeholder-gray-400"
                 />
                 <button
+                  type="button"
                   onClick={() => setShowConfirm(!showConfirm)}
                   className="text-gray-400 text-sm"
                 >
@@ -130,8 +214,12 @@ function SignUp({ onNavigate }) {
             </div>
 
             {/* Sign Up Button */}
-            <button className="bg-[#1A3A6E] text-white font-semibold py-3 rounded-lg hover:bg-[#C89030] transition-colors duration-300">
-              Sign Up →
+            <button
+              onClick={handleSignUp}
+              disabled={loading}
+              className="bg-[#1A3A6E] text-white font-semibold py-3 rounded-lg hover:bg-[#C89030] transition-colors duration-300 disabled:opacity-60"
+            >
+              {loading ? "Creating Account..." : "Sign Up →"}
             </button>
 
             {/* Divider */}
@@ -185,12 +273,12 @@ function SignUp({ onNavigate }) {
             {/* Login Link */}
             <p className="text-center text-sm text-gray-400">
               Already have an account?{" "}
-              <button
-                onClick={() => onNavigate("login")}
+              <Link
+                to="/login"
                 className="text-[#1A3A6E] font-semibold hover:underline"
               >
                 Sign In
-              </button>
+              </Link>
             </p>
           </div>
         </div>
